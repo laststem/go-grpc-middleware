@@ -49,7 +49,13 @@ func TagsToFields(ctx context.Context) []zapcore.Field {
 	fields := []zapcore.Field{}
 	tags := grpc_ctxtags.Extract(ctx)
 	for k, v := range tags.Values() {
-		fields = append(fields, zap.Any(k, v))
+		var field zapcore.Field
+		if conv, ok := v.(zap.Field); ok {
+			field = conv
+		} else {
+			field = zap.Any(k, v)
+		}
+		fields = append(fields, field)
 	}
 	return fields
 }
